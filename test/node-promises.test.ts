@@ -81,6 +81,27 @@ for (const customError of [false, true]) {
   });
 }
 
+// A handler that returns a non-object must stay on the sync path and get the
+// send layer's 500 — probing `then` with `in` instead threw a TypeError out of
+// the node:http listener, taking the process down on `--unhandled-rejections`.
+for (const result of [undefined, null, "not a response"] as const) {
+  test(`answers 500 for a handler returning ${JSON.stringify(result)}`, async () => {
+    const server = serve({
+      port: 0,
+      hostname: "127.0.0.1",
+      silent: true,
+      fetch: (() => result) as unknown as FetchHandler,
+    });
+    await server.ready();
+    try {
+      const response = await fetch(server.url!, { signal: AbortSignal.timeout(2000) });
+      expect(response.status).toBe(500);
+    } finally {
+      await server.close(true);
+    }
+  });
+}
+
 async function check(url: string) {
   for (let i = 0; i < 3; i++) {
     const response = await fetch(url, { signal: AbortSignal.timeout(2000) });

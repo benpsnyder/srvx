@@ -99,8 +99,8 @@ class NodeServer implements Server {
       }
       // node:http ignores the listener's return value — use the detached
       // variant to skip the per-response end-tracking Promise.
-      return "then" in res && typeof res.then === "function"
-        ? res.then(
+      return typeof (res as Promise<Response>)?.then === "function"
+        ? (res as Promise<Response>).then(
             (resolvedRes) => sendNodeResponseDetached(nodeRes, resolvedRes, this.options.silent),
             // Rejection handler (not `.catch`) so send failures, which
             // `sendNodeResponseDetached` already answers, aren't handled twice.
