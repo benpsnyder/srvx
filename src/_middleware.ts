@@ -15,9 +15,3 @@ export function wrapFetch(server: Server): ServerHandler {
   }
   return composed;
 }
-
-export function isAsyncResponse(
-  response: Response | Promise<Response>,
-): response is Promise<Response> {
-  return typeof (response as Promise<Response>).then === "function";
-}

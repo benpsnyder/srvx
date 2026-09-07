@@ -1,4 +1,3 @@
-import { isAsyncResponse } from "./_middleware.ts";
 import * as c from "./cli/_utils.ts";
 import type { ServerPlugin } from "./types.ts";
 
@@ -8,7 +7,9 @@ export const errorPlugin: ServerPlugin = (server) => {
   server.options.middleware.unshift((_req, next) => {
     try {
       const res = next();
-      return isAsyncResponse(res) ? res.then(undefined, (error) => errorHandler(error)) : res;
+      return "then" in res && typeof res.then === "function"
+        ? res.then(undefined, (error) => errorHandler(error))
+        : res;
     } catch (error) {
       return errorHandler(error);
     }
