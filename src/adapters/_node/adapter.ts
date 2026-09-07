@@ -34,7 +34,7 @@ export function toNodeHandler(
       trustProxy: options?.trustProxy,
     });
     const res = handler(request);
-    return res instanceof Promise
+    return "then" in res
       ? res.then((resolvedRes) => send(nodeRes, resolvedRes))
       : send(nodeRes, res);
   }
