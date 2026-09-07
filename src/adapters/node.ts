@@ -8,7 +8,7 @@ import {
   resolvePortAndHost,
   createWaitUntil,
 } from "../_utils.ts";
-import { wrapFetch } from "../_middleware.ts";
+import { wrapFetch, isAsyncResponse } from "../_middleware.ts";
 import { errorPlugin, gracefulShutdownPlugin } from "../_plugins.ts";
 
 import nodeHTTP from "node:http";
@@ -99,7 +99,7 @@ class NodeServer implements Server {
       }
       // node:http ignores the listener's return value — use the detached
       // variant to skip the per-response end-tracking Promise.
-      return "then" in res
+      return isAsyncResponse(res)
         ? res.then(
             (resolvedRes) => sendNodeResponseDetached(nodeRes, resolvedRes, this.options.silent),
             // Rejection handler (not `.catch`) so send failures, which

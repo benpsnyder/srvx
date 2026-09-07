@@ -13,12 +13,15 @@ class ReplacementPromise<T> extends NativePromise<T> {}
 
 for (const adapter of ["serve", "toNodeHandler"] as const) {
   describe(`${adapter} promise responses`, () => {
-    for (const kind of ["native", "cross-realm", "sync"] as const) {
+    for (const kind of ["native", "cross-realm", "sync", "non-callable-then"] as const) {
       test(`handles ${kind} responses with a replaced global Promise`, async () => {
         vi.stubGlobal("Promise", ReplacementPromise);
-        const response = () => new Response("ok");
+        const response = () =>
+          kind === "non-callable-then"
+            ? Object.assign(new Response("ok"), { then: undefined })
+            : new Response("ok");
         const handler: FetchHandler =
-          kind === "sync"
+          kind === "sync" || kind === "non-callable-then"
             ? response
             : kind === "native"
               ? async () => response()

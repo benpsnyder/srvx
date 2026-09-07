@@ -1,3 +1,4 @@
+import { isAsyncResponse } from "../../_middleware.ts";
 import type {
   FetchHandler,
   NodeHttpHandler,
@@ -34,7 +35,7 @@ export function toNodeHandler(
       trustProxy: options?.trustProxy,
     });
     const res = handler(request);
-    return "then" in res
+    return isAsyncResponse(res)
       ? res.then((resolvedRes) => send(nodeRes, resolvedRes))
       : send(nodeRes, res);
   }
